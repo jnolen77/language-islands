@@ -1,0 +1,14 @@
+.DS_Store
+/node_modules/
+
+# React Router
+/.react-router/
+/build/
+
+#dotenv environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+
+node_modules/
