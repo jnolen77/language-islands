@@ -19,33 +19,43 @@ const LanguageIslandForm = () => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
+  // Add this function to your component
+const cleanNumberedText = (text: string) => {
+  // Remove numbers and dots/parentheses from the beginning of lines
+  return text
+    .split('\n')
+    .map((line: string) => line.replace(/^\s*\d+[\.\)\-\:\s]+/, '').trim())
+    .filter((line: string | any[]) => line.length > 0)
+    .join('\n');
+};
 
-  const handleSubmit = async (e: { preventDefault: () => void }) => {
-    e.preventDefault();
-    setLoading(true);
-    setOutput('');
 
-    try {
-      const response = await fetch('http://localhost:5000/api/generate-island', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
+const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  setLoading(true);
+  setOutput('');
 
-      const data = await response.json();
-      if (data.output) {
-        setOutput(data.output);
-        setShowModal(true);
-      } else {
-        setOutput('No output returned. Check your input.');
-      }
-    } catch (err) {
-      setOutput('Error generating island.');
+  try {
+    const response = await fetch('http://localhost:5000/api/generate-island', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData),
+    });
+
+    const data = await response.json();
+    if (data.output) {
+      const cleanedOutput = cleanNumberedText(data.output);
+      setOutput(cleanedOutput);
+      setShowModal(true);
+    } else {
+      setOutput('No output returned. Check your input.');
     }
+  } catch (err) {
+    setOutput('Error generating island.');
+  }
 
-    setLoading(false);
-  };
-
+  setLoading(false);
+};
  const speakWithBrowserTTS = (text: string) => {
   if ('speechSynthesis' in window) {
     const utterance = new SpeechSynthesisUtterance(text);
