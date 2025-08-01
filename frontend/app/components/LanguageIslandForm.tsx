@@ -45,7 +45,7 @@ const LanguageIslandForm = () => {
 
   return (
     <div className="max-w-xl mx-auto p-4">
-      <h2 className="text-2xl font-bold mb-4">Generate Language Island</h2>
+      
       <form onSubmit={handleSubmit} className="space-y-4">
         <input name="age" type="number" placeholder="Age" onChange={handleChange} className="w-full p-2 border" />
         <input name="city" type="text" placeholder="City" onChange={handleChange} className="w-full p-2 border" />
