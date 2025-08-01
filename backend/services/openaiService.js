@@ -42,14 +42,36 @@ ${userProfile}
 
 ${topicLine}
 
-Generate 6-8 short, beginner-level sentences in ${language} that this person might use or hear. After each sentence, include the English translation.
-Keep vocabulary simple and directly relevant.
+Generate 6 short, beginner-level sentences in ${language} that this person might use in the topic. After each sentence, include the English translation in parentheses. Do not number the sentences or use bullet points.
+
 `;
 
-  const chatResponse = await openaiClient.chat.completions.create({
-    model: "gpt-3.5-turbo",
-    messages: [{ role: "user", content: prompt }],
-  });
+const chatResponse = await openaiClient.chat.completions.create({
+  model: "gpt-3.5-turbo",
+  messages: [
+    {
+      role: "system",
+      content: `You are a language tutor. Generate short beginner-level sentences in ${language}, followed by English translations. Do not number or bullet the sentences.`,
+    },
+    {
+      role: "user",
+      content: `The user is learning German. Topic: At a restaurant.`,
+    },
+    {
+      role: "assistant",
+      content: `Ich hätte gern einen Kaffee. (I would like a coffee.)
+Wo ist die Toilette? (Where is the bathroom?)
+Können wir bezahlen, bitte? (Can we pay, please?)`,
+    },
+    {
+      role: "user",
+      content: `${userProfile}\n${topicLine}`,
+    },
+  ],
+  temperature: 0.7,
+  max_tokens: 300,
+});
+
 
   return chatResponse.choices[0].message.content;
 }
