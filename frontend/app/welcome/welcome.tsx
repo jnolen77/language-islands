@@ -1,5 +1,5 @@
 import LanguageIslandForm from "~/components/LanguageIslandForm";
-import satzlingTransLogo from "./satzling-trans-logo.png"
+import satzlingTransLogo from "/images/satzling-trans-logo.png"
 
 
 export function Welcome() {
