@@ -51,7 +51,7 @@ const chatResponse = await openaiClient.chat.completions.create({
   messages: [
     {
       role: "system",
-      content: `You are a language tutor. Generate short beginner-level sentences in ${language}, followed by English translations. Do not number or bullet the sentences.`,
+      content: `You are a language tutor. Generate exactly 6 short beginner-level sentences in ${language}. Each sentence must be followed by its English translation in parentheses. Do not number or use bullet points. Format: "Sentence in ${language}. (English translation)"`,
     },
     {
       role: "user",
@@ -61,11 +61,14 @@ const chatResponse = await openaiClient.chat.completions.create({
       role: "assistant",
       content: `Ich hätte gern einen Kaffee. (I would like a coffee.)
 Wo ist die Toilette? (Where is the bathroom?)
-Können wir bezahlen, bitte? (Can we pay, please?)`,
+Können wir bezahlen, bitte? (Can we pay, please?)
+Die Rechnung, bitte. (The bill, please.)
+Das Essen ist sehr lecker. (The food is very delicious.)
+Haben Sie einen Tisch frei? (Do you have a table available?)`,
     },
     {
       role: "user",
-      content: `${userProfile}\n${topicLine}`,
+      content: prompt,
     },
   ],
   temperature: 0.7,

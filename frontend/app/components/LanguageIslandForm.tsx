@@ -16,9 +16,20 @@ const LanguageIslandForm = () => {
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  interface LanguageIslandFormData {
+    age: string;
+    city: string;
+    profession: string;
+    relationship: string;
+    language: string;
+    topic: string;
+  }
+
+  interface HandleChangeEvent extends React.ChangeEvent<HTMLInputElement | HTMLSelectElement> {}
+
+  const handleChange = (e: HandleChangeEvent) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev: LanguageIslandFormData) => ({ ...prev, [name]: value }));
   };
 
   const handleReset = () => {
@@ -27,7 +38,11 @@ const LanguageIslandForm = () => {
     setShowModal(false);
   };
 
-  const cleanNumberedText = (text: string) => {
+  interface CleanNumberedText {
+    (text: string): string;
+  }
+
+  const cleanNumberedText: CleanNumberedText = (text) => {
     return text
       .split('\n')
       .map((line: string) => line.replace(/^\s*\d+[\.\)\-\:\s]+/, '').trim())
@@ -35,7 +50,12 @@ const LanguageIslandForm = () => {
       .join('\n');
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  interface GenerateIslandResponse {
+    output?: string;
+    [key: string]: any;
+  }
+
+  const handleSubmit = async (e: React.FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setLoading(true);
     setOutput('');
@@ -47,7 +67,7 @@ const LanguageIslandForm = () => {
         body: JSON.stringify(formData),
       });
 
-      const data = await response.json();
+      const data: GenerateIslandResponse = await response.json();
       if (data.output) {
         const cleanedOutput = cleanNumberedText(data.output);
         setOutput(cleanedOutput);
@@ -62,7 +82,11 @@ const LanguageIslandForm = () => {
     setLoading(false);
   };
 
-  const speakWithBrowserTTS = (text: string) => {
+  interface SpeakWithBrowserTTS {
+    (text: string): void;
+  }
+
+  const speakWithBrowserTTS: SpeakWithBrowserTTS = (text) => {
     if ('speechSynthesis' in window) {
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'de-DE';
@@ -74,9 +98,24 @@ const LanguageIslandForm = () => {
     }
   };
 
-  const speakWithElevenLabs = async (text: string) => {
-    const apiKey = 'YOUR_ELEVENLABS_API_KEY';
-    const voiceId = 'YOUR_VOICE_ID';
+  interface SpeakWithElevenLabs {
+    (text: string): Promise<void>;
+  }
+
+  interface ElevenLabsVoiceSettings {
+    stability: number;
+    similarity_boost: number;
+  }
+
+  interface ElevenLabsRequestBody {
+    text: string;
+    model_id: string;
+    voice_settings: ElevenLabsVoiceSettings;
+  }
+
+  const speakWithElevenLabs: SpeakWithElevenLabs = async (text: string): Promise<void> => {
+    const apiKey: string = 'YOUR_ELEVENLABS_API_KEY';
+    const voiceId: string = 'YOUR_VOICE_ID';
 
     if (!apiKey || !voiceId) {
       speakWithBrowserTTS(text);
@@ -84,27 +123,29 @@ const LanguageIslandForm = () => {
     }
 
     try {
-      const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+      const requestBody: ElevenLabsRequestBody = {
+        text,
+        model_id: 'eleven_monolingual_v1',
+        voice_settings: {
+          stability: 0.4,
+          similarity_boost: 0.7,
+        },
+      };
+
+      const response: Response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
         method: 'POST',
         headers: {
           'xi-api-key': apiKey,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          text,
-          model_id: 'eleven_monolingual_v1',
-          voice_settings: {
-            stability: 0.4,
-            similarity_boost: 0.7,
-          },
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) throw new Error('ElevenLabs API error');
 
-      const blob = await response.blob();
-      const audio = new Audio(URL.createObjectURL(blob));
-      audio.play().catch(err => {
+      const blob: Blob = await response.blob();
+      const audio: HTMLAudioElement = new Audio(URL.createObjectURL(blob));
+      audio.play().catch((err: unknown) => {
         console.error('Audio play failed:', err);
         speakWithBrowserTTS(text);
       });
@@ -114,15 +155,53 @@ const LanguageIslandForm = () => {
     }
   };
 
-  const playSentence = (sentence: string) => {
-    speakWithElevenLabs(sentence);
+  interface PlaySentence {
+    (sentence: string): void;
+  }
+
+  const playSentence: PlaySentence = (sentence: string): void => {
+    
+    const germanOnly: string = sentence.replace(/\s*\([^)]*\)\s*$/, '').trim();
+    speakWithElevenLabs(germanOnly);
   };
 
-  const sentences = output.split(/(?<=[.?!])\s+/);
+ 
+  interface ParseSentences {
+    (text: string): string[];
+  }
+
+  const parseSentences: ParseSentences = (text: string): string[] => {
+   
+    const lines: string[] = text.split('\n').filter(line => line.trim());
+    const sentences: string[] = [];
+    
+    for (let i = 0; i < lines.length; i++) {
+      const line: string = lines[i].trim();
+      if (!line) continue;
+      
+      
+      if (line.includes('(') && line.includes(')')) {
+        sentences.push(line);
+      } else {
+       
+        const nextLine: string | undefined = lines[i + 1];
+        if (nextLine && nextLine.trim().startsWith('(') && nextLine.includes(')')) {
+          sentences.push(line + ' ' + nextLine.trim());
+          i++; 
+        } else {
+          sentences.push(line);
+        }
+      }
+    }
+    
+    return sentences;
+  };
+
+  const sentences = parseSentences(output);
 
   return (
     <div className="max-w-xl mx-auto p-4">
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-4">
         <input
           name="age"
           type="number"
@@ -183,18 +262,20 @@ const LanguageIslandForm = () => {
         </select>
 
         <div className="flex gap-4">
-          <button type="submit" className="bg-blue-600 text-white py-2 px-4 rounded">
+          <button 
+            onClick={handleSubmit}
+            className="bg-blue-600 text-white py-2 px-4 rounded"
+          >
             {loading ? 'Generating...' : 'Generate Language Island'}
           </button>
           <button
-            type="button"
             onClick={handleReset}
             className="bg-gray-600 text-white py-2 px-4 rounded"
           >
             Reset
           </button>
         </div>
-      </form>
+      </div>
 
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
@@ -215,7 +296,7 @@ const LanguageIslandForm = () => {
                   <p className="mr-4">{sentence}</p>
                   <button
                     onClick={() => playSentence(sentence)}
-                    className="text-blue-600 hover:text-blue-800"
+                    className="text-blue-600 hover:text-blue-800 flex-shrink-0"
                     title="Play audio"
                   >
                     <Volume2 />
