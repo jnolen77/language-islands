@@ -21,17 +21,20 @@ export default function Header () {
             </div>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center space-x-8">
-              <a href="#about" className="text-gray-600 hover:text-gray-900 transition-colors">
-                About
+            <nav className="hidden md:flex items-center space-x-8 ">
+              <a href="/islands" className="text-gray-200 hover:text-[#32bb95] transition-colors">
+                Islands
               </a>
-              <a href="#pricing" className="text-gray-600 hover:text-gray-900 transition-colors">
+              <a href="#pricing" className="text-gray-200 hover:text-[#32bb95] transition-colors">
                 Pricing
               </a>
-              <Button variant="ghost" className="text-gray-600 hover:text-gray-900">
+              <a href="/islands" className="text-gray-200 hover:text-[#32bb95] transition-colors">
+                About
+              </a>
+              <Button  className="w-20 bg-[#32bb95] hover:bg-[#3b6d5f] ">
                 Login
               </Button>
-              <Button className="bg-blue-600 hover:bg-blue-700">Sign Up</Button>
+              <Button className="w-20 bg-blue-600 hover:bg-blue-700">Sign Up</Button>
             </nav>
 
             {/* Mobile menu button */}
