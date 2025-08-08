@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Volume2 } from 'lucide-react';
 
 const initialFormData = {
+  name: '',
   age: '',
   city: '',
   profession: '',
@@ -17,6 +18,7 @@ const LanguageIslandForm = () => {
   const [showModal, setShowModal] = useState(false);
 
   interface LanguageIslandFormData {
+    name: string;
     age: string;
     city: string;
     profession: string;
@@ -202,6 +204,14 @@ const LanguageIslandForm = () => {
   return (
     <div className="max-w-xl mx-auto p-4">
       <div className="space-y-4">
+        <input 
+        name='name'
+        type='text'
+        placeholder='Name'
+        value={formData.name || ''}
+        onChange={handleChange}
+        className="w-full p-2 border bg-[#0a1430] placeholder-white text-white"
+        />
         <input
           name="age"
           type="number"
